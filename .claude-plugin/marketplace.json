@@ -1,0 +1,25 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "openai-creative-marketplace",
+  "description": "Marketplace hosting the openai-creative-plugin — image-generation toolkit for Claude Code, powered by OpenAI GPT Image models.",
+  "owner": {
+    "name": "Vladimir Bulanenko",
+    "email": "v.bulanenko@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "openai-creative-plugin",
+      "description": "MCP-driven image generation toolkit with auto-activating skills for game asset workflows, UI mockup series, character sprites, and prompt engineering. Wraps OpenAI GPT Image models behind a sessions-first API designed for LLM agent consumers.",
+      "author": {
+        "name": "Vladimir Bulanenko",
+        "email": "v.bulanenko@gmail.com"
+      },
+      "category": "image-generation",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/2901were/openai-creative-plugin.git"
+      },
+      "homepage": "https://github.com/2901were/openai-creative-plugin#readme"
+    }
+  ]
+}
