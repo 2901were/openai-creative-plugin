@@ -53,6 +53,45 @@ Validated across a 27-image A/B/C experiment + 6-deliverable production pass.
 
 ---
 
+## Prompt Anatomy (asset-series template)
+
+For multi-image work, structure prompts in this labeled order — a skimmable template beats clever syntax. The **Identity line comes first** (load-bearing anchor; see above), then:
+
+```
+Identity: <IP/project name> — <asset family>
+Scene: <background/context, or 'plain white background'>
+Subject: <the thing, pose/state>
+Details: <materials, palette, lighting>
+Constraints: <what must NOT appear / must stay fixed>
+```
+
+Full guidance: references/openai-prompting-essentials.md
+
+---
+
+## Text in Images
+
+GPT Image handles text but demands precision:
+- Put literal text **in quotes** or ALL CAPS; demand "verbatim, no extra characters"
+- Tricky or invented words (brand names): spell them out **letter-by-letter** in the prompt
+- Specify font style, size, color, and placement as hard constraints
+- Use `quality: "medium"` or `"high"` for small or dense text — `"low"` quality garbles it
+- Verify with Read tool — text errors are common (e.g., "SWIM" → "SVIM")
+
+Full guidance: references/openai-prompting-essentials.md
+
+---
+
+## Photorealism
+
+- Include the literal word **"photorealistic"** to engage photo mode; alternatives: "real photograph", "taken on a real camera"
+- Use camera/lens language: "35mm film photograph, 50mm lens, eye level, shallow depth of field, subtle film grain"
+- Avoid "studio polish" phrasing — it triggers over-smoothing (Source: OpenAI cookbook)
+
+Full guidance: references/openai-prompting-essentials.md
+
+---
+
 ## Prompting Rules
 
 **Do:**
@@ -101,18 +140,9 @@ Production-validated across 33 generations: ~100% shadow compliance, ~95% swatch
 
 ---
 
-## Text in Images
-
-GPT Image handles text in images but requires precision:
-- State the exact text: `text reads "PLAY" in bold white letters`
-- Specify font style and placement: `centered at bottom, sans-serif, all caps`
-- Keep it short — long text strings have higher error rates
-- Verify with Read tool — text errors are common (e.g., "SWIM" → "SVIM")
-
----
-
 ## Additional Resources
 
 ### Reference Files
 
 - **`references/domain-structures.md`** — Per-domain prompt structures: game sprites, game environments, character concepts, UI/mobile mockups, icon sets, web sections.
+- **`references/openai-prompting-essentials.md`** — Distilled OpenAI cookbook best practices (anatomy, preserve-lists, ref indexing, text accuracy, photorealism, quality strategy, iteration).

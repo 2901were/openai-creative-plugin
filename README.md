@@ -2,7 +2,7 @@
 
 A Model Context Protocol (MCP) server for AI image generation and editing using OpenAI GPT Image models. Designed for LLM/AI agents using Claude Code.
 
-**Version:** v0.1.0 | **Default Model:** `gpt-image-2`
+**Version:** v0.1.1 | **Default Model:** `gpt-image-2`
 
 ---
 
@@ -144,7 +144,7 @@ Generate a new image from a text description.
 - `model` (optional): `gpt-image-2` (default) or `gpt-image-1.5`
 - `quality` (optional): `low`, `medium`, `high`, `auto` — Default: `auto`
 - `background` (optional): `transparent`, `opaque`, `auto` — `transparent` requires `gpt-image-1.5`
-- `size` (optional): Explicit size (e.g., `1920x1080` on gpt-image-2, or preset on gpt-image-1.5)
+- `size` (optional): Explicit size (e.g., `1920x1080` on gpt-image-2, or preset on gpt-image-1.5). Default when omitted (no aspectRatio either): `1024x1024` for generation; edits default to `auto` (match input).
 - `outputDirectory` (optional): Absolute path to save this image
 
 #### `edit_image`

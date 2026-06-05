@@ -63,6 +63,8 @@ Each step references the previous image to propagate visual details forward.
 - If a pose looks wrong, use `continue_editing` to fix it before moving to the next pose.
 - Use the most descriptive prompt for the first image — subsequent prompts can be shorter since the image carries the visual context.
 
+**Preserve-list at every step.** Alongside `images[]`, restate what must not change in EVERY chain prompt — "Same knight: same helmet, plume, tabard, gold lion emblem, proportions, palette. Change only the pose to <X>." Drift compounds when later steps rely on "same as before". For multi-ref steps, address refs by index: "Image 1: base identity. Image 2: previous pose. Keep Image 1's design; continue the motion from Image 2." (Source: OpenAI cookbook; complements the validated images[] chaining — see finding-gpt-image-workflows.)
+
 ## Sprite Prompt Structure
 
 ```

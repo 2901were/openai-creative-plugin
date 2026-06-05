@@ -112,6 +112,10 @@ Production-validated across 33 generations in a single asset pack: ~100% shadow 
 
 **Alternative for transparency:** with `gpt-image-1.5` you can request `background: "transparent"` directly instead of post-processing chroma-key. Use gpt-image-1.5 + transparent background for any isolated subject that needs a true alpha channel.
 
+**Transparent extraction phrasing (gpt-image-1.5):** Request "transparent background (RGBA PNG), crisp silhouette, no halos or fringing." Optionally add: "subtle, realistic contact shadow in the alpha (no hard cut line)." For extractions from scenes: "remove the background only — do not restyle the subject." (Source: OpenAI cookbook)
+
+Full guidance: the openai-prompts skill → references/openai-prompting-essentials.md
+
 ---
 
 ## Caveat: Identity Guide Overreach

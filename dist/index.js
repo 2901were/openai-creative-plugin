@@ -22333,7 +22333,9 @@ function resolveImageSize(modelId, opts) {
     }
     return opts.size;
   }
-  if (!opts.aspectRatio) return "auto";
+  if (!opts.aspectRatio) {
+    return opts.context === "edit" ? "auto" : "1024x1024";
+  }
   const ratio = ASPECT_RATIOS[opts.aspectRatio];
   if (ratio === void 0) {
     throw new McpError(
@@ -22499,7 +22501,7 @@ async function handleStartCreativeSession(request, configMgr, sessionMgr) {
   const selectedModel = model || DEFAULT_MODEL;
   getModelCapabilities(selectedModel);
   validateModelSpecificParams(selectedModel, { background });
-  resolveImageSize(selectedModel, { aspectRatio, size });
+  resolveImageSize(selectedModel, { aspectRatio, size, context: "generate" });
   let resolvedOutputDir;
   if (outputDirectory) {
     resolvedOutputDir = validateOutputDirectory(outputDirectory);
@@ -22790,7 +22792,7 @@ async function handleGenerateImage(request, configMgr, sessionMgr, lastImageStat
   const selectedModel = model || DEFAULT_MODEL;
   getModelCapabilities(selectedModel);
   validateModelSpecificParams(selectedModel, { background });
-  const resolvedSize = resolveImageSize(selectedModel, { aspectRatio, size });
+  const resolvedSize = resolveImageSize(selectedModel, { aspectRatio, size, context: "generate" });
   const overrideOutputDir = rawOutputDirectory ? validateOutputDirectory(rawOutputDirectory) : void 0;
   try {
     const sessionId = await sessionMgr.ensureActiveSession({
@@ -22859,7 +22861,7 @@ async function handleEditImage(request, configMgr, sessionMgr, lastImageState) {
   const referenceImages = coerceStringArray(rawRefImages);
   const selectedModel = model || DEFAULT_MODEL;
   getModelCapabilities(selectedModel);
-  const resolvedSize = resolveImageSize(selectedModel, { aspectRatio, size });
+  const resolvedSize = resolveImageSize(selectedModel, { aspectRatio, size, context: "edit" });
   const overrideOutputDir = rawOutputDirectory ? validateOutputDirectory(rawOutputDirectory) : void 0;
   const mainImageValidation = await validateImagePath(imagePath);
   if (!mainImageValidation.valid) {
@@ -23056,7 +23058,7 @@ async function handleSendCreativeMessage(request, configMgr, sessionMgr, lastIma
     }
   }
   const cfg = session.config;
-  const resolvedSize = resolveImageSize(cfg.model, { aspectRatio: cfg.aspectRatio, size: cfg.size });
+  const resolvedSize = resolveImageSize(cfg.model, { aspectRatio: cfg.aspectRatio, size: cfg.size, context: validatedImages.length > 0 ? "edit" : "generate" });
   validateModelSpecificParams(cfg.model, {
     background: cfg.background,
     forEditing: validatedImages.length > 0,
@@ -23914,11 +23916,11 @@ var BACKGROUND_PROP_SESSION = {
 };
 var SIZE_PROP = {
   type: "string",
-  description: "Explicit output size, overrides aspectRatio. Presets: 'auto', '1024x1024', '1536x1024', '1024x1536'. gpt-image-2 additionally accepts any WIDTHxHEIGHT (both divisible by 16, ratio \u22643:1, max edge 3840px), e.g. '1920x1080'."
+  description: "Explicit output size, overrides aspectRatio. Presets: 'auto', '1024x1024', '1536x1024', '1024x1536'. gpt-image-2 additionally accepts any WIDTHxHEIGHT (both divisible by 16, ratio \u22643:1, max edge 3840px), e.g. '1920x1080'. Default when neither size nor aspectRatio is given: 1024x1024 for generation; edits default to 'auto' (match input)."
 };
 var SIZE_PROP_SESSION = {
   type: "string",
-  description: "Session default explicit output size, overrides aspectRatio. Presets: 'auto', '1024x1024', '1536x1024', '1024x1536'. gpt-image-2 additionally accepts any WIDTHxHEIGHT (both divisible by 16, ratio \u22643:1, max edge 3840px), e.g. '1920x1080'."
+  description: "Session default explicit output size, overrides aspectRatio. Presets: 'auto', '1024x1024', '1536x1024', '1024x1536'. gpt-image-2 additionally accepts any WIDTHxHEIGHT (both divisible by 16, ratio \u22643:1, max edge 3840px), e.g. '1920x1080'. Default when neither size nor aspectRatio is given: 1024x1024 for generation; edits default to 'auto' (match input)."
 };
 var ASPECT_RATIO_PROP = {
   type: "string",
@@ -24228,7 +24230,7 @@ var OpenAICreativeMCP = class {
   lastImageState;
   constructor() {
     this.server = new Server(
-      { name: "openai-creative", version: "0.1.0" },
+      { name: "openai-creative", version: "0.1.1" },
       { capabilities: { tools: {} } }
     );
     this.configMgr = new ConfigManager();

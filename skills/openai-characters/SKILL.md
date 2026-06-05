@@ -85,6 +85,8 @@ Suggested pose order for chaining (each references the previous):
 - Verify each pose with Read tool before moving on
 - If a pose is wrong, fix it with `continue_editing` before generating the next
 
+**Preserve-list at every step.** Alongside `images[]`, restate what must not change in EVERY chain prompt — "Same knight: same helmet, plume, tabard, gold lion emblem, proportions, palette. Change only the pose to <X>." Drift compounds when later steps rely on "same as before". For multi-ref steps, address refs by index: "Image 1: base identity. Image 2: previous pose. Keep Image 1's design; continue the motion from Image 2." (Source: OpenAI cookbook; complements the validated images[] chaining — see finding-gpt-image-workflows.)
+
 (validated on GPT Image 2026-06-05: single-ref and two-ref chains produced production-level consistency on gpt-image-2 — see [[finding-gpt-image-workflows]])
 
 ---

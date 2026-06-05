@@ -17,6 +17,7 @@ Generate a consistent set of UI mockup screens with a unified style using the Hy
 ## Key Rules
 
 - Generate individual screens separately (do NOT ask GPT Image to compose phone frames + labels — it introduces text errors like "SWIM" → "SVIM")
+- **Text accuracy in UI:** Put literal strings (button labels, app names, tab text) **in quotes** or ALL CAPS; demand "verbatim, no extra characters". For product names or invented words, spell them out **letter-by-letter** in the prompt. Use `quality: "medium"` or higher for screens with dense text panels — `"low"` quality garbles UI labels. (Source: OpenAI cookbook)
 - Use **9:16** aspect ratio for individual mobile screens (constrains canvas = authentic pixel density for pixel art styles)
 - Use **compounding references**: Screen 3 references Screen 1 + Screen 2 for maximum consistency
 - Final mockup composition (adding phone frames, labels, layout) should be done externally in Figma/Photoshop/Sketch

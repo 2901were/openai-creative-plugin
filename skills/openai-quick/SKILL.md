@@ -65,4 +65,14 @@ Example: `2D pixel art wizard character [subject], centered, front-facing [compo
 - **Style drifted** → pass the original image as a reference in `continue_editing`
 - **Text errors** (e.g. "SWIM" → "SVIM") → always verify text with Read tool, then correct with `continue_editing`
 
+## Speed Levers
+
+When turnaround time matters more than final polish:
+
+- Use `quality: "low"` first for draft exploration — escalate to `"medium"` or `"high"` only for finals
+- `jpeg` renders faster than `png` when you don't need transparency — use `png` only when an alpha channel is required
+- Square (1024×1024, the default) is the fastest shape — non-square sizes add a small latency overhead
+
+(Source: OpenAI cookbook)
+
 See the `openai-prompts` skill for domain-specific prompt structures (sprites, UI, icons, characters).

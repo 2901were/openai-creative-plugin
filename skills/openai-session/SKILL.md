@@ -42,6 +42,10 @@ Run `start_creative_session` with these parameters:
 
 **Practical rule:** Start with GPT Image 2. Switch to GPT Image 1.5 only if you need transparency.
 
+**Size defaults and ceiling:**
+- Generation defaults to **1024×1024**; edits default to **auto** (model picks best fit for the source).
+- **2560×1440 is the practical upper reliability boundary** — sizes above 2K are experimental (expect more variance), even though the API accepts up to 3840px. Stay at or below 2K for consistent output. (Source: OpenAI cookbook)
+
 ## Managing Multiple Sessions
 
 1. Check active sessions: `get_session_info()` — current session marked with ▶

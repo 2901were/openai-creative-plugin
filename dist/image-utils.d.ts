@@ -13,6 +13,7 @@ export declare const ASPECT_RATIOS: Record<string, number>;
 export declare function resolveImageSize(modelId: string, opts: {
     aspectRatio?: string;
     size?: string;
+    context?: 'generate' | 'edit';
 }): string;
 export declare function validateModelSpecificParams(modelId: string, params: {
     background?: ImageBackground;

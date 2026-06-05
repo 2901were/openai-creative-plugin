@@ -15,7 +15,7 @@ export class OpenAICreativeMCP {
     sessionMgr;
     lastImageState;
     constructor() {
-        this.server = new Server({ name: "openai-creative", version: "0.1.0" }, { capabilities: { tools: {} } });
+        this.server = new Server({ name: "openai-creative", version: "0.1.1" }, { capabilities: { tools: {} } });
         this.configMgr = new ConfigManager();
         this.sessionMgr = new SessionManager();
         this.lastImageState = { path: null };

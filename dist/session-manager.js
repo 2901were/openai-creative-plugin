@@ -77,7 +77,7 @@ export async function handleStartCreativeSession(request, configMgr, sessionMgr)
     const selectedModel = model || DEFAULT_MODEL;
     getModelCapabilities(selectedModel);
     validateModelSpecificParams(selectedModel, { background });
-    resolveImageSize(selectedModel, { aspectRatio, size });
+    resolveImageSize(selectedModel, { aspectRatio, size, context: 'generate' });
     let resolvedOutputDir;
     if (outputDirectory) {
         resolvedOutputDir = validateOutputDirectory(outputDirectory);

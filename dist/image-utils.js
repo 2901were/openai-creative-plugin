@@ -186,8 +186,9 @@ export function resolveImageSize(modelId, opts) {
         }
         return opts.size;
     }
-    if (!opts.aspectRatio)
-        return 'auto';
+    if (!opts.aspectRatio) {
+        return opts.context === 'edit' ? 'auto' : '1024x1024';
+    }
     const ratio = ASPECT_RATIOS[opts.aspectRatio];
     if (ratio === undefined) {
         throw new McpError(ErrorCode.InvalidParams, `Unknown aspect ratio '${opts.aspectRatio}'. Supported: ${Object.keys(ASPECT_RATIOS).join(', ')}.`);

@@ -11,7 +11,7 @@ export async function handleGenerateImage(request, configMgr, sessionMgr, lastIm
     const selectedModel = model || DEFAULT_MODEL;
     getModelCapabilities(selectedModel);
     validateModelSpecificParams(selectedModel, { background });
-    const resolvedSize = resolveImageSize(selectedModel, { aspectRatio, size });
+    const resolvedSize = resolveImageSize(selectedModel, { aspectRatio, size, context: 'generate' });
     const overrideOutputDir = rawOutputDirectory ? validateOutputDirectory(rawOutputDirectory) : undefined;
     try {
         const sessionId = await sessionMgr.ensureActiveSession({
@@ -64,7 +64,7 @@ export async function handleEditImage(request, configMgr, sessionMgr, lastImageS
     const referenceImages = coerceStringArray(rawRefImages);
     const selectedModel = model || DEFAULT_MODEL;
     getModelCapabilities(selectedModel);
-    const resolvedSize = resolveImageSize(selectedModel, { aspectRatio, size });
+    const resolvedSize = resolveImageSize(selectedModel, { aspectRatio, size, context: 'edit' });
     const overrideOutputDir = rawOutputDirectory ? validateOutputDirectory(rawOutputDirectory) : undefined;
     const mainImageValidation = await validateImagePath(imagePath);
     if (!mainImageValidation.valid) {
@@ -225,7 +225,7 @@ export async function handleSendCreativeMessage(request, configMgr, sessionMgr, 
         }
     }
     const cfg = session.config;
-    const resolvedSize = resolveImageSize(cfg.model, { aspectRatio: cfg.aspectRatio, size: cfg.size });
+    const resolvedSize = resolveImageSize(cfg.model, { aspectRatio: cfg.aspectRatio, size: cfg.size, context: validatedImages.length > 0 ? 'edit' : 'generate' });
     validateModelSpecificParams(cfg.model, {
         background: cfg.background,
         forEditing: validatedImages.length > 0,

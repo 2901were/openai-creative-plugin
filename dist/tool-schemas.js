@@ -45,14 +45,16 @@ const SIZE_PROP = {
     description: "Explicit output size, overrides aspectRatio. " +
         "Presets: 'auto', '1024x1024', '1536x1024', '1024x1536'. " +
         "gpt-image-2 additionally accepts any WIDTHxHEIGHT (both divisible by 16, ratio ≤3:1, max edge 3840px), " +
-        "e.g. '1920x1080'.",
+        "e.g. '1920x1080'. " +
+        "Default when neither size nor aspectRatio is given: 1024x1024 for generation; edits default to 'auto' (match input).",
 };
 const SIZE_PROP_SESSION = {
     type: "string",
     description: "Session default explicit output size, overrides aspectRatio. " +
         "Presets: 'auto', '1024x1024', '1536x1024', '1024x1536'. " +
         "gpt-image-2 additionally accepts any WIDTHxHEIGHT (both divisible by 16, ratio ≤3:1, max edge 3840px), " +
-        "e.g. '1920x1080'.",
+        "e.g. '1920x1080'. " +
+        "Default when neither size nor aspectRatio is given: 1024x1024 for generation; edits default to 'auto' (match input).",
 };
 const ASPECT_RATIO_PROP = {
     type: "string",

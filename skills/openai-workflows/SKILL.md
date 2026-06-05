@@ -135,6 +135,19 @@ The "text-only fails for subject repetition" half of this claim is validated on 
 
 ---
 
+## Iterate vs Regenerate
+
+Choose the right follow-up action before firing off the next call:
+
+- **Small, targeted corrections** → edit. Start with a clean base prompt, then follow up with single focused changes ("make the lighting warmer", "change the helmet visor to horizontal slats"). One change per call is easier to debug than an overloaded follow-up prompt.
+- **Critical details drifting across edits** → re-specify them explicitly the moment drift appears. "Same style as before" leverages chain context but is not a substitute for restating the preserve list.
+- **Wrong composition or fundamental layout** → regenerate fresh with `generate_image`. Editing rarely recovers from broken geometry or an entirely wrong scene structure.
+- **Wrong detail on an otherwise correct image** → edit with `continue_editing`. Don't throw away a good composition to fix a minor detail.
+
+(Source: OpenAI cookbook)
+
+---
+
 ## Special Case: Multi-Screen UI Composition
 
 **Do NOT** ask GPT Image to compose the final mockup (phone frames + labels + layout). It introduces text rendering errors and layout distortions.
