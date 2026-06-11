@@ -11,13 +11,14 @@ Generate a single image fast, without session overhead. Best for one-off images,
 ## When to Use This
 
 - Creating a single image with no plans to iterate
+- Generating a single new image anchored to an existing reference (without starting a session)
 - Exploring different concepts (generate several variations)
 - When you don't need organized file management
 - Quick reference images or placeholders
 
 ## When NOT to Use This
 
-- If you'll want consistent variations → use the `openai-sprite-series` skill instead
+- If you'll want a **series** of consistent variations → use the `openai-sprite-series` skill instead (sessions + `images` param)
 - If you're building a multi-screen project → use the `openai-ui-mockups` skill instead
 - If you want to iterate and refine → use `continue_editing` after the first generation
 
@@ -31,16 +32,21 @@ Generate a single image fast, without session overhead. Best for one-off images,
 
 3. **Choose parameters** based on the request:
    - `aspectRatio`: 1:1 (square/social), 16:9 (wide/presentation), 9:16 (mobile/story), 3:2 (photo), 21:9 (cinematic)
-   - `model`: `gpt-image-2` (default, best quality) — switch to `gpt-image-1.5` only if transparent background is needed
+   - `model`: `gpt-image-2` (default, best quality) — switch to `gpt-image-1.5` only if transparent background or `inputFidelity` control is needed
    - `quality`: `low` for quick exploration, `medium` for normal work, `high` for production output
 
 4. **Generate** with `generate_image`. Write a descriptive prompt:
    - Include: subject, style, lighting, mood, composition, color palette
    - Avoid vague keywords — "a cozy coffee shop with warm amber lighting, steam rising from cups, watercolor style" not "coffee shop"
 
-5. **Visually verify** with Read tool. If the result needs tweaking, use `continue_editing` with a correction prompt.
+5. **If anchoring to an existing reference** — add `referenceImages: ["/absolute/path/to/ref.png"]` (up to 16 refs, all paths must be valid — any invalid path is rejected before the request is sent):
+   - `gpt-image-2` (default): always high-fidelity, suitable for style anchoring; does NOT support `inputFidelity` param — omit it
+   - `gpt-image-1.5`: add `inputFidelity: "high"` when identity preservation matters (exact subject likeness); supports `background: "transparent"` if needed
+   - **SERIES with refs** → skip this pattern and use sessions + `send_creative_message` instead (see `openai-sprite-series` or `openai-workflows`)
 
-6. **Report back** with the image path and any notable details about what was generated.
+6. **Visually verify** with Read tool. If the result needs tweaking, use `continue_editing` with a correction prompt.
+
+7. **Report back** with the image path and any notable details about what was generated.
 
 ## Prompt Quality Guide
 

@@ -2,7 +2,7 @@
 
 A Model Context Protocol (MCP) server for AI image generation and editing using OpenAI GPT Image models. Designed for LLM/AI agents using Claude Code.
 
-**Version:** v0.1.1 | **Default Model:** `gpt-image-2`
+**Version:** v0.1.2 | **Default Model:** `gpt-image-2`
 
 ---
 
@@ -138,13 +138,15 @@ Set your OpenAI API key at runtime. Saves to `.openai-creative-config.json`.
 - `apiKey` (required): Your key from `platform.openai.com/api-keys`
 
 #### `generate_image`
-Generate a new image from a text description.
+Generate a new image from a text description, optionally anchored to reference images.
 - `prompt` (required): Detailed text description
 - `aspectRatio` (optional): `1:1`, `2:3`, `3:2`, `3:4`, `4:3`, `4:5`, `5:4`, `9:16`, `16:9`, `21:9` — Default: `1:1`
 - `model` (optional): `gpt-image-2` (default) or `gpt-image-1.5`
 - `quality` (optional): `low`, `medium`, `high`, `auto` — Default: `auto`
 - `background` (optional): `transparent`, `opaque`, `auto` — `transparent` requires `gpt-image-1.5`
 - `size` (optional): Explicit size (e.g., `1920x1080` on gpt-image-2, or preset on gpt-image-1.5). Default when omitted (no aspectRatio either): `1024x1024` for generation; edits default to `auto` (match input).
+- `referenceImages` (optional): Array of absolute paths to reference images (max 16). All paths must be valid — hard-fail, no silent skipping; routes via `/images/edits` internally
+- `inputFidelity` (optional): `high` or `low` — requires `referenceImages`; gpt-image-1.5 only
 - `outputDirectory` (optional): Absolute path to save this image
 
 #### `edit_image`

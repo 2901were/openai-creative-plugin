@@ -7,10 +7,29 @@ export async function handleGenerateImage(request, configMgr, sessionMgr, lastIm
     if (!configMgr.ensureConfigured()) {
         throw new McpError(ErrorCode.InvalidRequest, "OpenAI API token not configured. Use configure_openai_token first.");
     }
-    const { prompt, aspectRatio, model, quality, background, size, outputDirectory: rawOutputDirectory, } = request.params.arguments;
+    const { prompt, aspectRatio, model, quality, background, size, referenceImages: rawRefImages, inputFidelity, outputDirectory: rawOutputDirectory, } = request.params.arguments;
+    const referenceImages = coerceStringArray(rawRefImages) ?? [];
+    const hasRefs = referenceImages.length > 0;
     const selectedModel = model || DEFAULT_MODEL;
     getModelCapabilities(selectedModel);
-    validateModelSpecificParams(selectedModel, { background });
+    validateModelSpecificParams(selectedModel, {
+        background,
+        forEditing: hasRefs,
+        referenceImageCount: hasRefs ? referenceImages.length : undefined,
+    });
+    if (inputFidelity && !hasRefs) {
+        throw new McpError(ErrorCode.InvalidParams, "inputFidelity requires referenceImages on generate_image — it controls fidelity to reference images. Omit it for pure text generation.");
+    }
+    if (inputFidelity && !getModelCapabilities(selectedModel).supportsInputFidelity) {
+        throw new McpError(ErrorCode.InvalidParams, `Model ${selectedModel} does not accept inputFidelity (always high-fidelity). Omit the param or use gpt-image-1.5.`);
+    }
+    if (hasRefs) {
+        const validations = await Promise.all(referenceImages.map((p) => validateImagePath(p)));
+        const firstInvalid = validations.findIndex((v) => !v.valid);
+        if (firstInvalid !== -1) {
+            throw new McpError(ErrorCode.InvalidParams, `Reference image error: ${validations[firstInvalid].error ?? "Unknown error"} (${referenceImages[firstInvalid]})`);
+        }
+    }
     const resolvedSize = resolveImageSize(selectedModel, { aspectRatio, size, context: 'generate' });
     const overrideOutputDir = rawOutputDirectory ? validateOutputDirectory(rawOutputDirectory) : undefined;
     try {
@@ -20,13 +39,23 @@ export async function handleGenerateImage(request, configMgr, sessionMgr, lastIm
             description: 'Auto-created from generate_image',
         });
         const session = sessionMgr.getSession(sessionId);
-        const result = await callGenerateImage(configMgr.openai, {
-            model: selectedModel,
-            prompt,
-            size: resolvedSize,
-            quality,
-            background,
-        });
+        const result = hasRefs
+            ? await callEditImage(configMgr.openai, {
+                model: selectedModel,
+                prompt,
+                size: resolvedSize,
+                quality,
+                background,
+                inputFidelity,
+                imagePaths: referenceImages,
+            })
+            : await callGenerateImage(configMgr.openai, {
+                model: selectedModel,
+                prompt,
+                size: resolvedSize,
+                quality,
+                background,
+            });
         const { savedFiles } = await saveImageResult(result, session, lastImageState, overrideOutputDir);
         if (savedFiles.length > 0) {
             session.lastActivityAt = new Date();
@@ -41,6 +70,8 @@ export async function handleGenerateImage(request, configMgr, sessionMgr, lastIm
             statusText += `\nQuality: ${quality}`;
         if (background)
             statusText += `\nBackground: ${background}`;
+        if (hasRefs)
+            statusText += `\n✅ Reference images used: ${referenceImages.length}`;
         if (savedFiles.length > 0) {
             statusText += `\n\n📁 Saved to:\n${savedFiles.join('\n')}`;
         }

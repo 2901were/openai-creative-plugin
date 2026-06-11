@@ -117,7 +117,7 @@ WHAT HAPPENS:
     },
     {
         name: "generate_image",
-        description: `Generate a new image from a text description. Returns the file path of the saved image.`,
+        description: `Generate a new image from a text description, optionally anchored to reference images (character identity, style, palette). For consistent multi-image SERIES, prefer sessions (start_creative_session + send_creative_message). Returns the file path of the saved image.`,
         annotations: {
             openWorldHint: true,
         },
@@ -128,11 +128,21 @@ WHAT HAPPENS:
                     type: "string",
                     description: "Detailed text description of the NEW image to create from scratch",
                 },
+                referenceImages: {
+                    type: "array",
+                    items: { type: "string" },
+                    description: "Optional array of EXACT absolute file paths to reference images (character identity, style anchors, palette sources). Max 16. All paths must be valid — the call fails rather than silently generating without a requested reference.",
+                },
                 aspectRatio: ASPECT_RATIO_PROP,
                 model: MODEL_PROP,
                 quality: QUALITY_PROP,
                 background: BACKGROUND_PROP,
                 size: SIZE_PROP,
+                inputFidelity: {
+                    type: "string",
+                    enum: ["high", "low"],
+                    description: "Fidelity to the reference images. Only valid together with referenceImages. gpt-image-1.5 only — gpt-image-2 is always high-fidelity and rejects this param.",
+                },
                 outputDirectory: {
                     type: "string",
                     description: "Optional custom absolute path for saving this image (e.g., '/Users/dev/my-project/assets'). Must not be a system directory. Overrides the active session's outputDirectory for this call only.",

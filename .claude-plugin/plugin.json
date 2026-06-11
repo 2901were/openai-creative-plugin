@@ -1,6 +1,6 @@
 {
   "name": "openai-creative-plugin",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "OpenAI Creative — an MCP-driven image generation toolkit with auto-activating skills for game asset workflows, UI mockup series, character sprites, and prompt engineering. Wraps OpenAI GPT Image models behind a sessions-first API designed for LLM agent consumers.",
   "author": {
     "name": "Vladimir Bulanenko",

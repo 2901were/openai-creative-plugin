@@ -1,6 +1,6 @@
 ---
 name: openai-workflows
-description: This skill should be used when the user asks "which workflow should I use", "how should I structure this generation task", "should I use a session", "is text-only enough", "Hybrid vs Identity Guide", or otherwise needs to choose between the four main generation patterns (Hybrid Workflow, Identity Guide Workflow, continue_editing, text-only sessions). Covers the decision tree, validated trade-off comparison, and special case for multi-screen UI composition.
+description: This skill should be used when the user asks "which workflow should I use", "how should I structure this generation task", "should I use a session", "is text-only enough", "Hybrid vs Identity Guide", or otherwise needs to choose between the five main generation patterns (Hybrid Workflow, Identity Guide Workflow, generate_image with referenceImages, continue_editing, text-only sessions). Covers the decision tree, validated trade-off comparison, and special case for multi-screen UI composition.
 version: 0.4.0
 ---
 
@@ -17,22 +17,33 @@ Choose the right workflow before starting. Wrong choice = wasted API calls.
 ## Decision Tree
 
 ```
-Do you need visual consistency across multiple images?
+Is this ONE image or a SERIES?
 │
-├── YES — fixed subject (same character/object across poses, same UI across screens)?
-│   └── Hybrid Workflow (sessions + images param)  ← unmatched for subject-level repetition
+├── ONE image
+│   └── Anchored to an existing reference?
+│       ├── YES → generate_image + referenceImages (up to 16 paths; all must be valid)
+│       │         gpt-image-2 (default): style anchoring, always high-fidelity
+│       │         gpt-image-1.5: add inputFidelity:"high" for identity preservation;
+│       │                        supports background:"transparent"
+│       └── NO  → generate_image (text-only)
 │
-├── YES — thematic asset pack in one world (different items, shared IP/style)?
-│   └── Identity Guide Workflow (verbatim 5-line guide + variant deltas)
-│       ← NEW (validated 2026-05-12): simpler, lower token cost, no image-ref chaining
-│
-├── YES — UI screen series with shared layout?
-│   └── Hybrid Workflow (image refs lock in exact repeated header/banner/grid layouts)
-│
-└── NO — unrelated batches?
-    ├── One image → generate_image
-    └── Many unrelated images → text-only session or repeated generate_image
+└── SERIES — multiple images needed?
+    │
+    ├── Fixed subject (same character/object across poses, same UI across screens)?
+    │   └── Hybrid Workflow (sessions + images param)  ← unmatched for subject-level repetition
+    │
+    ├── Thematic asset pack in one world (different items, shared IP/style)?
+    │   └── Identity Guide Workflow (verbatim 5-line guide + variant deltas)
+    │       ← validated 2026-05-12: simpler, lower token cost, no image-ref chaining
+    │
+    ├── UI screen series with shared layout?
+    │   └── Hybrid Workflow (image refs lock in exact repeated header/banner/grid layouts)
+    │
+    └── Unrelated batches?
+        └── Text-only session or repeated generate_image
 ```
+
+After any single-image generation: need to refine? → `continue_editing` (Workflow 3).
 
 ---
 

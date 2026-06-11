@@ -22787,11 +22787,42 @@ async function handleGenerateImage(request, configMgr, sessionMgr, lastImageStat
     quality,
     background,
     size,
+    referenceImages: rawRefImages,
+    inputFidelity,
     outputDirectory: rawOutputDirectory
   } = request.params.arguments;
+  const referenceImages = coerceStringArray(rawRefImages) ?? [];
+  const hasRefs = referenceImages.length > 0;
   const selectedModel = model || DEFAULT_MODEL;
   getModelCapabilities(selectedModel);
-  validateModelSpecificParams(selectedModel, { background });
+  validateModelSpecificParams(selectedModel, {
+    background,
+    forEditing: hasRefs,
+    referenceImageCount: hasRefs ? referenceImages.length : void 0
+    // refs.length — NO main image on generate
+  });
+  if (inputFidelity && !hasRefs) {
+    throw new McpError(
+      ErrorCode.InvalidParams,
+      "inputFidelity requires referenceImages on generate_image \u2014 it controls fidelity to reference images. Omit it for pure text generation."
+    );
+  }
+  if (inputFidelity && !getModelCapabilities(selectedModel).supportsInputFidelity) {
+    throw new McpError(
+      ErrorCode.InvalidParams,
+      `Model ${selectedModel} does not accept inputFidelity (always high-fidelity). Omit the param or use gpt-image-1.5.`
+    );
+  }
+  if (hasRefs) {
+    const validations = await Promise.all(referenceImages.map((p) => validateImagePath(p)));
+    const firstInvalid = validations.findIndex((v) => !v.valid);
+    if (firstInvalid !== -1) {
+      throw new McpError(
+        ErrorCode.InvalidParams,
+        `Reference image error: ${validations[firstInvalid].error ?? "Unknown error"} (${referenceImages[firstInvalid]})`
+      );
+    }
+  }
   const resolvedSize = resolveImageSize(selectedModel, { aspectRatio, size, context: "generate" });
   const overrideOutputDir = rawOutputDirectory ? validateOutputDirectory(rawOutputDirectory) : void 0;
   try {
@@ -22801,7 +22832,16 @@ async function handleGenerateImage(request, configMgr, sessionMgr, lastImageStat
       description: "Auto-created from generate_image"
     });
     const session = sessionMgr.getSession(sessionId);
-    const result = await callGenerateImage(configMgr.openai, {
+    const result = hasRefs ? await callEditImage(configMgr.openai, {
+      model: selectedModel,
+      prompt,
+      size: resolvedSize,
+      quality,
+      background,
+      inputFidelity,
+      imagePaths: referenceImages
+      // refs only — /edits is just the image-accepting wire
+    }) : await callGenerateImage(configMgr.openai, {
       model: selectedModel,
       prompt,
       size: resolvedSize,
@@ -22822,6 +22862,8 @@ Size: ${resolvedSize}`;
 Quality: ${quality}`;
     if (background) statusText += `
 Background: ${background}`;
+    if (hasRefs) statusText += `
+\u2705 Reference images used: ${referenceImages.length}`;
     if (savedFiles.length > 0) {
       statusText += `
 
@@ -23974,7 +24016,7 @@ WHAT HAPPENS:
   },
   {
     name: "generate_image",
-    description: `Generate a new image from a text description. Returns the file path of the saved image.`,
+    description: `Generate a new image from a text description, optionally anchored to reference images (character identity, style, palette). For consistent multi-image SERIES, prefer sessions (start_creative_session + send_creative_message). Returns the file path of the saved image.`,
     annotations: {
       openWorldHint: true
     },
@@ -23985,11 +24027,21 @@ WHAT HAPPENS:
           type: "string",
           description: "Detailed text description of the NEW image to create from scratch"
         },
+        referenceImages: {
+          type: "array",
+          items: { type: "string" },
+          description: "Optional array of EXACT absolute file paths to reference images (character identity, style anchors, palette sources). Max 16. All paths must be valid \u2014 the call fails rather than silently generating without a requested reference."
+        },
         aspectRatio: ASPECT_RATIO_PROP,
         model: MODEL_PROP,
         quality: QUALITY_PROP,
         background: BACKGROUND_PROP,
         size: SIZE_PROP,
+        inputFidelity: {
+          type: "string",
+          enum: ["high", "low"],
+          description: "Fidelity to the reference images. Only valid together with referenceImages. gpt-image-1.5 only \u2014 gpt-image-2 is always high-fidelity and rejects this param."
+        },
         outputDirectory: {
           type: "string",
           description: "Optional custom absolute path for saving this image (e.g., '/Users/dev/my-project/assets'). Must not be a system directory. Overrides the active session's outputDirectory for this call only."
@@ -24230,7 +24282,7 @@ var OpenAICreativeMCP = class {
   lastImageState;
   constructor() {
     this.server = new Server(
-      { name: "openai-creative", version: "0.1.1" },
+      { name: "openai-creative", version: "0.1.2" },
       { capabilities: { tools: {} } }
     );
     this.configMgr = new ConfigManager();
